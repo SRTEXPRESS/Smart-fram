@@ -21,10 +21,6 @@ h1 {
     color: #38bdf8;
 }
 
-h2 {
-    margin-top: 10px;
-}
-
 .circle {
     width: 200px;
     height: 200px;
@@ -35,21 +31,18 @@ h2 {
     justify-content: center;
     font-size: 32px;
     background: conic-gradient(#22c55e 0%, #1e293b 0%);
-    transition: 0.5s;
 }
 
 canvas {
     max-width: 600px;
-    margin: 30px auto;
+    margin: auto;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Smart-farm</h1>
-<hr style="width:80%; border:1px solid #334155;">
-
+<h1>Smart Farm</h1>
 <h2>🌱 Soil Moisture Dashboard</h2>
 
 <div class="circle" id="circle">0%</div>
@@ -67,43 +60,32 @@ const chart = new Chart(ctx, {
     data: {
         labels: labels,
         datasets: [{
-            label: 'ความชื้นในดิน (%)',
+            label: 'ความชื้น (%)',
             data: dataPoints,
-            borderWidth: 2,
-            tension: 0.3
+            borderWidth: 2
         }]
     },
     options: {
         scales: {
-            y: {
-                min: 0,
-                max: 100
-            }
+            y: { min: 0, max: 100 }
         }
     }
 });
 
 function updateDashboard(val){
-    const circle = document.getElementById("circle");
-    circle.innerText = val + "%";
+    document.getElementById("circle").innerText = val + "%";
 
-    circle.style.background =
-        `conic-gradient(#22c55e ${val}%, #1e293b ${val}%)`;
-
-    const time = new Date().toLocaleTimeString();
-
-    labels.push(time);
+    labels.push(new Date().toLocaleTimeString());
     dataPoints.push(val);
 
     if(dataPoints.length > 10){
-        dataPoints.shift();
         labels.shift();
+        dataPoints.shift();
     }
 
     chart.update();
 }
 
-// 🔄 DEMO (ตอนนี้เป็นสุ่มค่า)
 setInterval(() => {
     let moisture = Math.floor(Math.random() * 100);
     updateDashboard(moisture);
