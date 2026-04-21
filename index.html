@@ -33,7 +33,6 @@ h1 {
     background: conic-gradient(#22c55e 0%, #1e293b 0%);
 }
 
-/* 🔥 สถานะรดน้ำ */
 .status {
     font-size: 24px;
     margin-top: 10px;
@@ -49,7 +48,6 @@ h1 {
     color: #94a3b8;
 }
 
-/* เอฟเฟกต์กระพริบ */
 @keyframes blink {
     0% { opacity: 1; }
     50% { opacity: 0.3; }
@@ -87,7 +85,9 @@ const chart = new Chart(ctx, {
         datasets: [{
             label: 'ความชื้น (%)',
             data: dataPoints,
-            borderWidth: 2
+            borderWidth: 2,
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56,189,248,0.2)'
         }]
     },
     options: {
@@ -97,8 +97,31 @@ const chart = new Chart(ctx, {
     }
 });
 
+// ===== ThingSpeak CONFIG =====
+const CHANNEL_ID = "3351288";
+const API_KEY = "HDJTQ5A2S1JL8IXC";
+
+// ดึงข้อมูลล่าสุด
+async function fetchData(){
+    try {
+        const url = `https://api.thingspeak.com/channels/${CHANNEL_ID}/fields/1/last.json?api_key=${API_KEY}`;
+        
+        const res = await fetch(url);
+        const data = await res.json();
+
+        let moisture = parseFloat(data.field1);
+
+        if(isNaN(moisture)) return;
+
+        updateDashboard(moisture);
+
+    } catch (err) {
+        console.log("Error:", err);
+    }
+}
+
 function updateDashboard(val){
-    document.getElementById("circle").innerText = val + "%";
+    document.getElementById("circle").innerText = val.toFixed(1) + "%";
 
     // 📊 กราฟ
     labels.push(new Date().toLocaleTimeString());
@@ -111,7 +134,7 @@ function updateDashboard(val){
 
     chart.update();
 
-    // 💧 เงื่อนไขรดน้ำ
+    // 💧 สถานะรดน้ำ
     const status = document.getElementById("waterStatus");
 
     if(val < 30){
@@ -123,12 +146,9 @@ function updateDashboard(val){
     }
 }
 
-// 🔄 DEMO (สุ่มค่า)
-setInterval(() => {
-    let moisture = Math.floor(Math.random() * 100);
-    updateDashboard(moisture);
-}, 2000);
-
+// เริ่มทำงาน
+fetchData();
+setInterval(fetchData, 15000);
 </script>
 
 </body>
